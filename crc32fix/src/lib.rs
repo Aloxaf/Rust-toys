@@ -41,9 +41,7 @@ impl CrcData {
 
 /// 从指定位置替换数据
 pub fn replace_nbytes(src: &mut Vec<u8>, offset: usize, data: &[u8]) {
-    for i in 0..data.len() {
-        src[offset + i] = data[i];
-    }
+    src[offset..(data.len() + offset)].clone_from_slice(&data[..]);
 }
 
 /// 爆破 crc32 值
@@ -95,9 +93,7 @@ pub fn get_crcdata(data: &[u8], crcdata: &mut CrcData) {
 
         match decoded {
             Decoded::ChunkBegin(_length, type_str) => {
-                for i in 0..4 {
-                    crcdata.type_str[i] = type_str[i];
-                }
+                crcdata.type_str[..4].clone_from_slice(&type_str[..4]);
             }
             Decoded::Header(width, height, bit_depth, color_type, interlaced) => {
                 crcdata.width = width;
