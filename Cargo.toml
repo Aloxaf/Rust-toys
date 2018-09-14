@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "crc32fix",
+    "img2ascii",
+    "mirage_tank",
+]
+
+[profile.release]
+lto = true
+opt-level = 3

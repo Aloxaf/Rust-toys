@@ -1,0 +1,13 @@
+name: crc32fix
+version: "0.1"
+author: Aloxaf <aloxafx@gmail.com>
+about: 根据 crc32 校验值修复受损图片的宽高
+args:
+  - inputfile:
+      help: 受损文件路径
+      required: true
+  - output:
+      short: o
+      value_name: outputfile
+      help: 输出文件
+      takes_value: true

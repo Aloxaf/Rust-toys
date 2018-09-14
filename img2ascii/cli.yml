@@ -1,0 +1,31 @@
+name: img2ascii
+version: "0.1"
+author: Aloxaf <aloxafx@gmail.com>
+about: 图片转字符画
+args:
+  - filename:
+      help: 图片完整路径
+      required: true
+  - width:
+      short: w
+      long: width
+      value_name: width
+      help: 字符画的宽 (默认80)
+      takes_value: true
+  - height:
+      short: h
+      long: height
+      value_name: height
+      help: 字符画的高 (默认更随宽变化)
+      takes_value: true
+  - output:
+      short: o
+      long: output
+      value_name: outputfile
+      help: 输出文件
+      takes_value: true
+  - force:
+      short: f
+      long: force
+      help: 当输出文件存在时不询问直接覆盖
+      requires: output
