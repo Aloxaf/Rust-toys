@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "bitlogin",
     "crc32fix",
     "img2ascii",
     "mirage_tank",
