@@ -1,5 +1,5 @@
 name: img2ascii
-version: "0.1"
+version: "1.0.0"
 author: Aloxaf <aloxafx@gmail.com>
 about: 图片转字符画
 args:

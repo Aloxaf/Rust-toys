@@ -1,0 +1,20 @@
+name: bitlogin
+version: "1.0.0"
+author: Aloxaf <aloxafx@gmail.com>
+about: 北理工校园网登录
+args:
+  - action:
+      help: 动作 (login/logout)
+      required: true
+  - username:
+      short: u
+      help: 用户名(学号)
+      required: true
+      takes_value: true
+  - password:
+      short: p
+      help: 密码
+      required: true
+      takes_value: true
+  - type:
+      help: 校园网类型, 登录时可选, 注销时必需 (web/mobile/library)

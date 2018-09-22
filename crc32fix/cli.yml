@@ -1,5 +1,5 @@
 name: crc32fix
-version: "0.1"
+version: "1.0.0"
 author: Aloxaf <aloxafx@gmail.com>
 about: 根据 crc32 校验值修复受损图片的宽高
 args:

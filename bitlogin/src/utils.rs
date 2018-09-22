@@ -9,6 +9,28 @@ use byteorder::{ByteOrder, LittleEndian};
 use hmac::{Hmac, Mac};
 use md5::Md5;
 
+// FIXME: 这方法太TM挫了
+pub fn get_host_ip() -> Result<String, ()> {
+    let addrs = nix::ifaddrs::getifaddrs().unwrap();
+    for ifaddr in addrs {
+        if let Some(address) = ifaddr.address {
+            let ip = address.to_str();
+            if &ip[0..2] == "10" {
+                return Ok(String::from(&ip[..ip.len() - 2]));
+            }
+        }
+    }
+    Err(())
+}
+
+
+/// 使用 HMAC 算法计算数据的哈希, 这里采用了 MD5
+///
+/// Example:
+///
+/// ```
+/// assert_eq!("7afed10b1e1bc70b8a428a44754de091", &hmacencode("123", ""));
+/// ```
 pub fn hmacencode(key: &str, mes: &str) -> String {
     let mut mac = Hmac::<Md5>::new_varkey(&key.bytes().collect::<Vec<_>>()).unwrap();
     mac.input(&mes.bytes().collect::<Vec<_>>());
@@ -21,6 +43,14 @@ pub fn hmacencode(key: &str, mes: &str) -> String {
 }
 
 /// 处理魔改 base64
+/// 主要是多字节字符只取低八位 & 自定义字符集
+///
+/// Example:
+///
+/// ```
+/// assert_eq!("ZaRk", fkbase64("abc"));
+/// assert_eq!("o/qi", fkbase64("伊莉雅"));
+/// ```
 pub fn fkbase64(s: &str) -> String {
     let s = s.chars().map(|c| c as u8).collect::<Vec<_>>();
     let digest = base64::encode(&s);
@@ -34,7 +64,12 @@ pub fn fkbase64(s: &str) -> String {
         .collect::<String>()
 }
 
-/// char[] -> int[] 小端序
+/// 将字符串按小端序转为整数
+///
+/// Example
+/// ```
+/// assert_eq!(vec![1684234849, 101, 5], unpack("abcde", true))
+/// ```
 fn unpack(msg: &str, key: bool) -> Vec<u32> {
     let len = msg.len();
     let cnt = if len % 4 == 0 { 0 } else { 4 - len % 4 };
@@ -53,7 +88,12 @@ fn unpack(msg: &str, key: bool) -> Vec<u32> {
     pwd
 }
 
-/// int[] -> char[] 小端序
+/// 将整数数组根据小端序转为字符串
+///
+/// Example
+/// ```
+/// assert_eq!("abcde\x00\x00\x00", &pack(&[0x64636261, 101], false));
+/// ```
 fn pack(msg: &[u32], _key: bool) -> String {
     let mut bytes: Vec<u8> = Vec::new();
     msg.iter().for_each(|&i| {
@@ -67,6 +107,11 @@ fn pack(msg: &[u32], _key: bool) -> String {
 /// 我也不知道这是什么加密方式...
 /// 对着　Python 版本翻译的...
 /// 而 Python 版本是对着 js 版本翻译的...
+///
+/// Example
+/// ```
+/// assert_eq!("êÛ\x1d]Ó0c1", xencode("abc", "def"));
+/// ```
 pub fn xencode(msg: &str, key: &str) -> String {
     if msg == "" {
         return String::new();

@@ -1,10 +1,10 @@
 [package]
 name = "crc32fix"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Aloxaf <bailong104@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 png = "^0.12.0"
 crc = "^1.8.1"
-clap = "^2.32.0"
+clap = {version = "^2.32.0", features = ["yaml"]}
