@@ -1,0 +1,9 @@
+[package]
+name = "brainfuck"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+
+[dependencies]
+pest = "2.0.1"
+pest_derive = "2.0.1"
+podio = "0.1.6"

@@ -1,0 +1,15 @@
+WHITESPACE = _{ " " | "\t" }
+incp = { ">" }
+decp = { "<" }
+incd = { "+" }
+decd = { "-" }
+accept = { "," }
+output = { "." }
+loop_start = _{ "[" }
+loop_end   = _{ "]" }
+
+cmd = _{ incp | decp | incd | decd | accept | output }
+loop_body = { loop_start ~ (cmd | loop_body)+ ~ loop_end }
+block = { cmd* ~ loop_body ~ cmd* }
+
+code = _{SOI ~ block ~ EOI}
