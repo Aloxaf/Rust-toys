@@ -24,7 +24,7 @@ fn main() {
         .unwrap();
     // +[-[<<[+[--->]-[<<<]]]>>>-]>-.---.>..>.<<<<-.<+.>>>>>.>.<<.<-.
     interpreter
-        .eval_tokens(tokens, false)
+        .eval_tokens(&tokens, false)
         .unwrap_or_else(|e| match e {
             Error::StackPointerOutOfBoundary => eprintln!("Stack pointer out of boundary."),
             Error::IOError(mes) => eprintln!("{}", mes),

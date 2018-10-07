@@ -80,11 +80,8 @@ where
         self.data[self.index] = n;
     }
 
-    pub fn eval_tokens(&mut self, tokens: Pair<Rule>, _loop: bool) -> Result<(), Error> {
-        loop {
-            if _loop && self.read() == 0 {
-                break;
-            }
+    pub fn eval_tokens(&mut self, tokens: &Pair<Rule>, _loop: bool) -> Result<(), Error> {
+        while !(_loop && self.read() == 0) {
             for op in tokens.clone().into_inner() {
                 match op.as_rule() {
                     Rule::incp => self.incp()?,
@@ -99,12 +96,12 @@ where
                         let output = self.read() as char;
                         write!(self.ostream, "{}", output)?;
                     }
-                    Rule::loop_body => self.eval_tokens(op, true)?,
+                    Rule::loop_body => self.eval_tokens(&op, true)?,
                     _ => unreachable!(),
                 }
                 self.ostream.flush()?;
             }
-            if !_loop || (_loop && self.read() == 0) {
+            if !(_loop && self.read() != 0) {
                 break;
             }
         }
