@@ -2,9 +2,10 @@ extern crate brainfuck;
 extern crate pest;
 extern crate podio;
 
-use brainfuck::{BrainFKParser, Error, Interpreter, Rule};
+use brainfuck::{BrainFKParser, Interpreter, Rule};
 use pest::iterators::Pair;
 use pest::Parser;
+use std::error::Error;
 use std::io::{self, Read};
 use std::process;
 
@@ -25,8 +26,7 @@ fn main() {
     // +[-[<<[+[--->]-[<<<]]]>>>-]>-.---.>..>.<<<<-.<+.>>>>>.>.<<.<-.
     interpreter
         .eval_tokens(&tokens, false)
-        .unwrap_or_else(|e| match e {
-            Error::StackPointerOutOfBoundary => eprintln!("Stack pointer out of boundary."),
-            Error::IOError(mes) => eprintln!("{}", mes),
+        .unwrap_or_else(|e| {
+            eprintln!("{}", e)
         });
 }

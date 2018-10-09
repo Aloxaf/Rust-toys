@@ -8,6 +8,7 @@ mod parser;
 pub use parser::{BrainFKParser, Rule};
 use pest::iterators::Pair;
 use podio::ReadPodExt;
+use std::{error, fmt};
 use std::io::{self, Read, Write};
 
 #[derive(Debug, Clone)]
@@ -16,18 +17,46 @@ pub struct Interpreter<R, W> {
     size: usize,
     istream: R,
     ostream: W,
+    /// 当前指针位置
     pub index: usize,
 }
 
 #[derive(Debug)]
 pub enum Error {
+    /// 指针越界
     StackPointerOutOfBoundary,
-    IOError(String),
+    /// IO错误
+    IOError(io::Error),
 }
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error::IOError(format!("IO Error: {}", e))
+        Error::IOError(e)
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Error::StackPointerOutOfBoundary => write!(f, "Stack pointer out of boundary."),
+            Error::IOError(ref err) => write!(f, "IO Error: {}", err),
+        }
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        match *self {
+            Error::StackPointerOutOfBoundary => "Stack pointer out of boundary.",
+            Error::IOError(ref err) => err.description(),
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match *self {
+            Error::IOError(ref err) => Some(err),
+            _ => None,
+        }
     }
 }
 
@@ -36,6 +65,13 @@ where
     R: Read,
     W: Write,
 {
+    /// 实例化一个解释器\
+    ///
+    /// # 参数
+    ///
+    /// `size` - 堆栈大小\
+    /// `istream` - 输入流\
+    /// `ostream` - 输出流
     pub fn new(size: usize, istream: R, ostream: W) -> Interpreter<R, W> {
         Interpreter {
             data: vec![0; size],
@@ -46,15 +82,18 @@ where
         }
     }
 
-    pub fn incd(&mut self) {
+    /// 指针指向的cell数值+1
+    fn incd(&mut self) {
         self.data[self.index] = self.data[self.index].wrapping_add(1);
     }
 
-    pub fn decd(&mut self) {
+    /// 指针指向的cell数值-1
+    fn decd(&mut self) {
         self.data[self.index] = self.data[self.index].wrapping_sub(1);
     }
 
-    pub fn incp(&mut self) -> Result<(), Error> {
+    /// 指针+1
+    fn incp(&mut self) -> Result<(), Error> {
         self.index += 1;
         if self.index < self.size {
             Ok(())
@@ -63,7 +102,8 @@ where
         }
     }
 
-    pub fn decp(&mut self) -> Result<(), Error> {
+    /// 指针-1
+    fn decp(&mut self) -> Result<(), Error> {
         if self.index > 0 {
             self.index -= 1;
             Ok(())
@@ -72,14 +112,17 @@ where
         }
     }
 
-    pub fn read(&self) -> u8 {
+    /// 读取当前cell的数据
+    fn read(&self) -> u8 {
         self.data[self.index]
     }
 
-    pub fn write(&mut self, n: u8) {
+    /// 往当前cell写入数据
+    fn write(&mut self, n: u8) {
         self.data[self.index] = n;
     }
 
+    /// 运行 `Tokens`
     pub fn eval_tokens(&mut self, tokens: &Pair<Rule>, _loop: bool) -> Result<(), Error> {
         while !(_loop && self.read() == 0) {
             for op in tokens.clone().into_inner() {
