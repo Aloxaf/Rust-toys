@@ -1,10 +1,14 @@
+extern crate chrono;
 extern crate libc;
 
+use chrono::Duration;
+use chrono::prelude::*;
 use libc::{c_char, c_ulong};
 use std::ffi::CStr;
+use std::process::Command;
 
 pub enum Error {
-    NoActiveWindow
+    NoActiveWindow,
 }
 
 #[repr(C)]
@@ -57,4 +61,43 @@ pub fn GetActiveWindow<'a>() -> Result<WindowInfo<'a>, Error> {
             wm_name: unsafe { CStr::from_ptr(cret.wm_name) }.to_str().unwrap(),
         })
     }
+}
+
+/// get keyboard devices' id
+pub fn get_device_list() -> Vec<i32> {
+    let mut devices = vec![];
+
+    let xinput = Command::new("xinput").output().unwrap();
+    let output = String::from_utf8(xinput.stdout).unwrap();
+    let device_list = output.split('\n').collect::<Vec<_>>();
+    for device in device_list {
+        if let Some(_) = device.find("slave  keyboard") {
+            let pos = device.find("id=").unwrap(); // return the position of '='
+            let id = device
+                .chars()
+                .skip(pos + 1)
+                .take_while(|c| c.is_ascii_digit())
+                .collect::<String>();
+            let id = id.parse::<i32>().unwrap();
+            devices.push(id);
+        }
+    }
+
+    devices
+}
+
+
+pub fn get_log_name() -> String {
+    let dt = Local::now();
+    let timestr = dt.format("%Y-%m-%d 07:00:00").to_string();
+
+    let dt = if dt.hour() >= 7 {
+        Local.datetime_from_str(&timestr, "%Y-%m-%d %H:%M:%S").unwrap()
+    } else {
+        let mut dt = Local.datetime_from_str(&timestr, "%Y-%m-%d %H:%M:%S").unwrap();
+        dt = dt - Duration::days(1);
+        dt
+    };
+
+    dt.format("%s").to_string()
 }
