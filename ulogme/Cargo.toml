@@ -1,0 +1,11 @@
+[package]
+name = "ulogme"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+libc = "0.2.43"
+
+[build-dependencies]
+cc = "1.0.25"

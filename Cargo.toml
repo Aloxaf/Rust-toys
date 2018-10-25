@@ -2,7 +2,11 @@
 members = [
     "bitlogin",
     "brainfuck",
+    "calculator",
     "crc32fix",
+    "iostream",
     "img2ascii",
     "mirage_tank",
+    "md5",
+    "ulogme",
 ]
