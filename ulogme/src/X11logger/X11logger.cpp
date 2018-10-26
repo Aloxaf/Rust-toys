@@ -12,16 +12,6 @@
 
 #define MAXSTR 1000
 
-void check_status(int status, unsigned long window) {
-    if (status == BadWindow) {
-        throw "window id # 0x%lx does not exists!"; //  window);
-    }
-
-    if (status != Success) {
-        throw "XGetWindowProperty failed!";
-    }
-}
-
 unsigned char *get_string_property(Display *display, Window window, char const *property_name) {
     Atom actual_type, filter_atom;
     int actual_format, status;
@@ -31,12 +21,13 @@ unsigned char *get_string_property(Display *display, Window window, char const *
     filter_atom = XInternAtom(display, property_name, True);
     status = XGetWindowProperty(display, window, filter_atom, 0, MAXSTR, False, AnyPropertyType,
                                 &actual_type, &actual_format, &nitems, &bytes_after, &prop);
-    check_status(status, window);
-    return prop;
+    return status == Success ? prop : NULL;
 }
 
 unsigned long get_long_property(Display *display, Window window, char const *property_name) {
     unsigned char *prop = get_string_property(display, window, property_name);
+    if (prop == NULL)
+        return 0;
     unsigned long long_property = prop[0] + (prop[1] << 8) + (prop[2] << 16) + (prop[3] << 24);
     return long_property;
 }

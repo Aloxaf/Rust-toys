@@ -5,7 +5,11 @@ use chrono::Duration;
 use chrono::prelude::*;
 use libc::{c_char, c_ulong};
 use std::ffi::CStr;
-use std::process::Command;
+use std::io::prelude::*;
+use std::process::{Command, Stdio};
+use std::sync::{Arc, Mutex};
+use std::time;
+use std::thread::{self, sleep};
 
 pub enum Error {
     NoActiveWindow,
@@ -64,14 +68,14 @@ pub fn GetActiveWindow<'a>() -> Result<WindowInfo<'a>, Error> {
 }
 
 /// get keyboard devices' id
-pub fn get_device_list() -> Vec<i32> {
+fn get_device_list() -> Vec<i32> {
     let mut devices = vec![];
 
     let xinput = Command::new("xinput").output().unwrap();
     let output = String::from_utf8(xinput.stdout).unwrap();
     let device_list = output.split('\n').collect::<Vec<_>>();
     for device in device_list {
-        if let Some(_) = device.find("slave  keyboard") {
+        if device.find("slave  keyboard").is_some() {
             let pos = device.find("id=").unwrap(); // return the position of '='
             let id = device
                 .chars()
@@ -86,7 +90,47 @@ pub fn get_device_list() -> Vec<i32> {
     devices
 }
 
+/// 获取按键次数
+/// 先获取所有的 keyboard 设备, 然后开一堆 `xinput test $id` 进程, 监测其输出
+#[allow(non_snake_case)]
+pub fn GetKeyPressCnt() -> Arc<Mutex<i32>> {
+    let cnt = Arc::new(Mutex::new(0));
 
+    let devices = get_device_list();
+    let mut handles = vec![];
+
+    for device in devices {
+        let cnt = Arc::clone(&cnt);
+        let handle = thread::spawn(move || {
+            let xinput_child = Command::new("xinput")
+                .arg("test")
+                .arg(device.to_string())
+                .stdout(Stdio::piped())
+                .spawn()
+                .expect("Failed to run `xinput` command");
+            let outout = xinput_child.stdout.unwrap();
+            let mut bytes = outout.bytes();
+            loop {
+                // 读取到换行符
+                let s = bytes.by_ref()
+                    .map(|b| b.unwrap() as char)
+                    .take_while(|&c| c != '\n')
+                    .collect::<String>();
+                if s.find("press").is_some() {
+                    let mut cnt = cnt.lock().unwrap();
+                    *cnt += 1;
+                }
+                sleep(time::Duration::from_millis(1000));
+            }
+        });
+        handles.push(handle);
+    }
+
+    cnt
+}
+
+/// 获取自定义时间戳
+/// 早上七点之前算到前一天(肝帝模式
 pub fn get_log_name() -> String {
     let dt = Local::now();
     let timestr = dt.format("%Y-%m-%d 07:00:00").to_string();
