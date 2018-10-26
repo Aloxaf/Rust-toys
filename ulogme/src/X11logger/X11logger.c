@@ -34,6 +34,10 @@ unsigned long get_long_property(Display *display, Window window, char const *pro
 
 extern "C" DLL_PUBLIC WindowInfo get_active_window() {
     Display *display = XOpenDisplay(NULL);
+    if (display == NULL) {
+        return (WindowInfo){0, NULL, NULL};
+    }
+
     int screen = XDefaultScreen(display);
     Window window = RootWindow(display, screen);
     window = get_long_property(display, window, "_NET_ACTIVE_WINDOW");
