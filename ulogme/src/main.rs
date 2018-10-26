@@ -59,8 +59,9 @@ fn main() {
         // 窗口切换记录
         if let Ok(window) = GetActiveWindow() {
             if window.wm_name != prev_wm_name {
-                // 如果上次记录的时间到现在已经过了超过 5s, 则判定在这段时间内属于休眠时间
-                if prev_win_time.elapsed().unwrap().as_secs() >= 5 {
+                // FIXME: telegram 右键菜单也会导致没有记录
+                // 如果上次记录的时间到现在已经过了超过 30s, 则判定在这段时间内属于休眠时间
+                if prev_win_time.elapsed().unwrap().as_secs() >= 30 {
                     prev_wm_name = "__LOCKEDSCREEN";
                     println!("{} {}", get_timestamp(), prev_wm_name);
                     writeln!(&mut win_log_file, "{} {}", get_timestamp(), prev_wm_name);
