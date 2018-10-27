@@ -6,6 +6,7 @@ extern crate podio;
 mod parser;
 
 pub use parser::{BrainFKParser, Rule};
+use pest::Parser;
 use pest::iterators::Pair;
 use podio::ReadPodExt;
 use std::{error, fmt};
@@ -23,6 +24,8 @@ pub struct Interpreter<R, W> {
 
 #[derive(Debug)]
 pub enum Error {
+    /// 语法分析错误
+    ParseError(pest::error::Error<Rule>),
     /// 指针越界
     StackPointerOutOfBoundary,
     /// IO错误
@@ -38,6 +41,7 @@ impl From<io::Error> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Error::ParseError(ref err) => write!(f, "Parse Error:\n{}", err),
             Error::StackPointerOutOfBoundary => write!(f, "Stack pointer out of boundary."),
             Error::IOError(ref err) => write!(f, "IO Error: {}", err),
         }
@@ -47,6 +51,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
+            Error::ParseError(ref err) => err.description(),
             Error::StackPointerOutOfBoundary => "Stack pointer out of boundary.",
             Error::IOError(ref err) => err.description(),
         }
@@ -120,6 +125,18 @@ where
     /// 往当前cell写入数据
     fn write(&mut self, n: u8) {
         self.data[self.index] = n;
+    }
+
+    /// 执行一段代码
+    pub fn eval(&mut self, code: &str) -> Result<(), Error> {
+        fn parse(code: &str) -> Result<Pair<Rule>, pest::error::Error<Rule>> {
+            match BrainFKParser::parse(Rule::code, &code.trim()) {
+                Ok(mut tokens) => Ok(tokens.next().unwrap()),
+                Err(e) => Err(e),
+            }
+        }
+        let tokens = parse(code.trim()).map_err(Error::ParseError)?;
+        self.eval_tokens(&tokens, false)
     }
 
     /// 运行 `Tokens`
