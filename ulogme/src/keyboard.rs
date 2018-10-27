@@ -1,3 +1,4 @@
+use regex::RegexBuilder;
 use std::io::prelude::*;
 use std::io::{BufRead, Cursor};
 use std::process::{Command, Stdio};
@@ -23,32 +24,32 @@ fn get_device_list() -> Vec<i32> {
             devices.push(id);
         }
     }
-
     devices
 }
 
 /// 获取修饰键的键码
 fn get_modifier_keys() -> Vec<String> {
-    let mut ids = vec![];
     let cmd_xmodmap = Command::new("xmodmap")
         .arg("-pk")
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("WTF? No xmodmap ??");
-    let cmd_grep = Command::new("grep")
-        .arg("-iE")
-        .arg(r#"\b(shift_[lr]|alt_[lr]|control_[lr]|caps_lock)\b"#)
-        .stdin(cmd_xmodmap.stdout.unwrap())
         .output()
-        .expect("WFT? No grep ??");
-    let cursor = Cursor::new(cmd_grep.stdout);
-    for line in cursor.lines() {
-        let line = line.unwrap();
-        let mut fields = line.split_whitespace();
-        let id = fields.next().unwrap().to_string();
-        ids.push(id);
-    }
-    ids
+        .expect("WTF? No xmodmap ??");
+    let re = RegexBuilder::new(r".*\b(shift_[lr]|alt_[lr]|control_[lr]|caps_lock)\b.*")
+        .case_insensitive(true)
+        .build()
+        .unwrap();
+    let cursor = Cursor::new(cmd_xmodmap.stdout);
+    cursor
+        .lines()
+        .filter_map(|s| {
+            let s = s.unwrap();
+            if re.is_match(&s) {
+                let mut fields = s.split_whitespace();
+                Some(fields.next().unwrap().to_string())
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 /// 获取按键次数
@@ -57,10 +58,11 @@ fn get_modifier_keys() -> Vec<String> {
 pub fn GetKeyPressCnt() -> Arc<Mutex<i32>> {
     let cnt = Arc::new(Mutex::new(0));
     let modifier_keys = Arc::new(get_modifier_keys());
-
     let devices = get_device_list();
-    let mut handles = vec![];
+    debug!("modifier keys: {:?}", modifier_keys);
+    debug!("keyboard devices: {:?}", devices);
 
+    let mut handles = vec![];
     for device in devices {
         let cnt = Arc::clone(&cnt);
         let modifier_keys = Arc::clone(&modifier_keys);

@@ -1,9 +1,15 @@
+extern crate env_logger;
+#[macro_use]
+extern crate log;
+
 use std::io::prelude::*;
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 use ulogme::*;
 
 fn main() {
+    env_logger::init();
+
     let cnt = GetKeyPressCnt();
 
     let mut prev_wm_name = "";
@@ -27,7 +33,7 @@ fn main() {
         // 窗口切换记录
         if screen_locked() && prev_wm_name != "__LOCKEDSCREEN" {
             prev_wm_name = "__LOCKEDSCREEN";
-            println!("{} {}", get_timestamp(), prev_wm_name);
+            info!("{} {}", get_timestamp(), prev_wm_name);
             writeln!(&mut win_log_file, "{} {}", get_timestamp(), prev_wm_name);
         } else if let Ok(window) = GetActiveWindow() {
             if window.wm_name != prev_wm_name {
@@ -37,11 +43,13 @@ fn main() {
                     window.wm_name,
                     window.wm_class
                 );
-                println!("{}", log_str);
+                info!("{}", log_str);
                 writeln!(&mut win_log_file, "{}", log_str);
 
                 prev_wm_name = window.wm_name;
             }
+        } else {
+            error!("No active window");
         }
 
         // 记录按下的键的次数, 当满10s且按键次数大于0的时候进行一次记录
@@ -49,7 +57,7 @@ fn main() {
             let mut cnt = cnt.lock().unwrap();
             if *cnt != 0 {
                 prev_key_time = SystemTime::now();
-                println!("{} {}", get_timestamp(), *cnt);
+                info!("{} {}", get_timestamp(), *cnt);
                 writeln!(&mut key_log_file, "{} {}", get_timestamp(), *cnt);
                 *cnt = 0;
             }
