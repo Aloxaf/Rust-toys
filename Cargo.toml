@@ -2,6 +2,7 @@
 members = [
     "bitlogin",
     "brainfuck",
+    "brainfuck_macro",
     "calculator",
     "crc32fix",
     "iostream",
@@ -9,4 +10,5 @@ members = [
     "mirage_tank",
     "md5",
     "ulogme",
+    "webapi",
 ]
