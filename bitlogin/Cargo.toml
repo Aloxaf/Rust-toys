@@ -13,6 +13,6 @@ md-5 = "0.7.0"
 base64 = "0.9.3"
 byteorder = "1.2.6"
 sha-1 = "0.7.0"
-clap = {version = "^2.32.0", features = ["yaml"]}
+clap = {version = "2.32.0", features = ["yaml"]}
 regex = "1.0.5"
 maplit = "1.0.1"
