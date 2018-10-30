@@ -1,0 +1,6 @@
+[package]
+name = "iostream"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+
+[dependencies]

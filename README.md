@@ -18,6 +18,8 @@
 
 + [brainfuck](./brainfuck) brainfuck 解释器, 学习 pest
 
++ [iostream](./iostream) 模仿 C++ 的 cin/cout, 学习泛型, Trait 啥的 
+
 + [ulogme](./ulogme) 同名项目的替代脚本, 学习多线程
 
 + [brainfuck_macro](./brainfuck_macro) 用宏实现的 brainfuck 解释器, 学习宏
