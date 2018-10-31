@@ -1,0 +1,12 @@
+[package]
+name = "brainfuck_procmacro"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+syn = "0.15.16"
+quote = "0.6.9"
+
+[lib]
+proc-macro = true

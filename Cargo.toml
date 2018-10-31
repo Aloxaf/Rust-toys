@@ -3,6 +3,7 @@ members = [
     "bitlogin",
     "brainfuck",
     "brainfuck_macro",
+    "brainfuck_procmacro",
     "calculator",
     "crc32fix",
     "iostream",

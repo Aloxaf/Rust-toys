@@ -127,6 +127,14 @@ name = "brainfuck_macro"
 version = "0.1.0"
 
 [[package]]
+name = "brainfuck_procmacro"
+version = "0.1.0"
+dependencies = [
+ "quote 0.6.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 0.15.16 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "build_const"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
