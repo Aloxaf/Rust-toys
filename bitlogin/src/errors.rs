@@ -1,4 +1,4 @@
-use failure::Error;
+use failure::{Error, Fail};
 use regex;
 use reqwest;
 use std::fmt;
@@ -36,7 +36,6 @@ impl From<reqwest::Error> for MyError {
     }
 }
 
-
 #[derive(Fail, Debug)]
 pub enum GetAcidError {
     NetWorkError,
@@ -71,7 +70,6 @@ impl From<reqwest::Error> for GetAcidError {
         GetAcidError::NetWorkError
     }
 }
-
 
 //
 //

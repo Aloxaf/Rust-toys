@@ -1,21 +1,14 @@
-#[macro_use] extern crate clap;
-extern crate image;
-extern crate img2ascii;
-
+use clap::{load_yaml, value_t, App};
 use image::{imageops, GenericImage};
-use clap::App;
-use std::io::prelude::*;
-use std::path::Path;
-use std::process;
-use std::fs::File;
 use img2ascii::image2ascii;
+use std::{fs::File, io::prelude::*, path::Path, process};
 
 fn main() {
     let yaml = load_yaml!("../cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
 
     let inputfile = matches.value_of("filename").unwrap();
-    let width: u32  = value_t!(matches.value_of("width"), u32).unwrap_or(0);
+    let width: u32 = value_t!(matches.value_of("width"), u32).unwrap_or(0);
     let height: u32 = value_t!(matches.value_of("height"), u32).unwrap_or(0);
 
     let image = image::open(inputfile).unwrap_or_else(|e| {
@@ -31,7 +24,6 @@ fn main() {
         (w, 0) => (w, w * img_h / img_w),
         (w, h) => (w, h),
     };
-
 
     let image = image.resize(width, height, imageops::Nearest).to_luma();
     let output = image2ascii(&image);

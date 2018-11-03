@@ -1,7 +1,3 @@
-extern crate brainfuck;
-extern crate pest;
-extern crate podio;
-
 use brainfuck::Interpreter;
 use std::io::{self, Read};
 
@@ -16,5 +12,5 @@ fn main() {
         eprintln!("{}", e);
     });
 
-//    // +[-[<<[+[--->]-[<<<]]]>>>-]>-.---.>..>.<<<<-.<+.>>>>>.>.<<.<-.
+    //    // +[-[<<[+[--->]-[<<<]]]>>>-]>-.---.>..>.<<<<-.<+.>>>>>.>.<<.<-.
 }

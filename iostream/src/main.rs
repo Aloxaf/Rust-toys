@@ -1,5 +1,3 @@
-extern crate iostream;
-
 use iostream::*;
 
 #[allow(unused_must_use)]

@@ -1,11 +1,9 @@
-use reqwest;
+use crate::{utils, GetAcidError};
 use failure::Error;
-use json::JsonValue;
+use json::{object, JsonValue};
 use regex::Regex;
+use reqwest;
 use sha1::{Digest, Sha1};
-
-use super::utils;
-use super::{MyError, GetAcidError};
 
 pub struct User<'a> {
     api: &'a str,
@@ -142,7 +140,7 @@ impl<'a> User<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::User;
+    use crate::User;
     #[test]
     fn test_make_params() {
         let user = User::new("1120172179", "Fak3_Pa3sw07d");

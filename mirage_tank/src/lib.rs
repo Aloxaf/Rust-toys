@@ -1,8 +1,6 @@
 //! 幻影坦克车库
-extern crate image;
-
-use image::*;
 use image::Rgba;
+use image::*;
 
 pub struct MirageTank {
     wimg: ImageBuffer<Rgba<u8>, Vec<u8>>,
@@ -15,7 +13,7 @@ impl MirageTank {
     fn resize(img: &DynamicImage, scale: f32) -> DynamicImage {
         // 缩放非常耗时, 1.0 就不缩放了
         if (scale - 1.0).abs() < std::f32::EPSILON {
-            return img.clone()
+            return img.clone();
         }
         let (width, height) = img.dimensions();
         let width = (width as f32 * scale).round() as u32;
@@ -23,7 +21,7 @@ impl MirageTank {
         img.resize(width, height, imageops::CatmullRom)
     }
 
-    fn greyize(rgba1: Rgba<u8>, rgba2: Rgba<u8>, wlight: f32, blight: f32) -> Rgba<u8>  {
+    fn greyize(rgba1: Rgba<u8>, rgba2: Rgba<u8>, wlight: f32, blight: f32) -> Rgba<u8> {
         let c1 = f32::from(rgba1.to_luma().data[0]) / 255.0 * wlight;
         let c2 = f32::from(rgba2.to_luma().data[0]) / 255.0 * blight;
 
@@ -36,44 +34,68 @@ impl MirageTank {
         Rgba { data: [r, r, r, a] }
     }
 
-    fn colorize(rgba1: Rgba<u8>, rgba2: Rgba<u8>, wlight: f32, blight: f32, wcolor: f32, bcolor: f32) -> Rgba<u8> {
+    fn colorize(
+        rgba1: Rgba<u8>,
+        rgba2: Rgba<u8>,
+        wlight: f32,
+        blight: f32,
+        wcolor: f32,
+        bcolor: f32,
+    ) -> Rgba<u8> {
         // turn 0~255 to 0~1 and change light
-        let rgb1 = rgba1.to_rgb().data.iter().map(|&c| {
-            (f32::from(c) / 255.0 * wlight).min(1.0)
-        }).collect::<Vec<_>>();
-        let rgb2 = rgba2.to_rgb().data.iter().map(|&c| {
-            (f32::from(c) / 255.0 * blight).min(1.0)
-        }).collect::<Vec<_>>();
+        let rgb1 = rgba1
+            .to_rgb()
+            .data
+            .iter()
+            .map(|&c| (f32::from(c) / 255.0 * wlight).min(1.0))
+            .collect::<Vec<_>>();
+        let rgb2 = rgba2
+            .to_rgb()
+            .data
+            .iter()
+            .map(|&c| (f32::from(c) / 255.0 * blight).min(1.0))
+            .collect::<Vec<_>>();
 
         let gray1 = rgb1.iter().fold(0.0, |s, c| s + c / 3.0).min(1.0);
         let gray2 = rgb2.iter().fold(0.0, |s, c| s + c / 3.0).min(1.0);
 
-        let rgb1 = rgb1.iter().map(|c| c * wcolor + gray1 * (1.0 - wcolor)).collect::<Vec<_>>();
-        let rgb2 = rgb2.iter().map(|c| c * bcolor + gray2 * (1.0 - bcolor)).collect::<Vec<_>>();
+        let rgb1 = rgb1
+            .iter()
+            .map(|c| c * wcolor + gray1 * (1.0 - wcolor))
+            .collect::<Vec<_>>();
+        let rgb2 = rgb2
+            .iter()
+            .map(|c| c * bcolor + gray2 * (1.0 - bcolor))
+            .collect::<Vec<_>>();
 
-        let drgb = rgb1.iter().zip(rgb2.iter()).map(|(c1, c2)| 1.0 - c1 + c2).collect::<Vec<_>>();
+        let drgb = rgb1
+            .iter()
+            .zip(rgb2.iter())
+            .map(|(c1, c2)| 1.0 - c1 + c2)
+            .collect::<Vec<_>>();
 
         let maxc = rgb2[0].max(rgb2[1]).max(rgb2[2]);
 
-        let a = (drgb[0] * 0.222 + drgb[1] * 0.707 + drgb[2] * 0.071).max(maxc).min(1.0);
+        let a = (drgb[0] * 0.222 + drgb[1] * 0.707 + drgb[2] * 0.071)
+            .max(maxc)
+            .min(1.0);
 
         let r = ((rgb2[0] / a).min(1.0) * 255.0).round() as u8;
         let g = ((rgb2[1] / a).min(1.0) * 255.0).round() as u8;
         let b = ((rgb2[2] / a).min(1.0) * 255.0).round() as u8;
 
-        Rgba { data: [r, g, b, (a * 255.0).round() as u8] }
+        Rgba {
+            data: [r, g, b, (a * 255.0).round() as u8],
+        }
     }
-
 }
 
-
 impl MirageTank {
-
     pub fn open(
         wimg: &str,
         bimg: &str,
         wscale: f32,
-        bscale: f32
+        bscale: f32,
     ) -> Result<MirageTank, ImageError> {
         let _wimg = MirageTank::resize(&image::open(wimg)?, wscale);
         let _bimg = MirageTank::resize(&image::open(bimg)?, bscale);
@@ -85,8 +107,10 @@ impl MirageTank {
         let height = std::cmp::max(wheight, bheight);
 
         let size = (width * height * 4) as usize;
-        let mut wimg: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::from_raw(width, height, vec![255; size]).unwrap();
-        let mut bimg: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::from_raw(width, height, vec![0; size]).unwrap();
+        let mut wimg: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            ImageBuffer::from_raw(width, height, vec![255; size]).unwrap();
+        let mut bimg: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            ImageBuffer::from_raw(width, height, vec![0; size]).unwrap();
 
         wimg.copy_from(&_wimg, (width - wwidth) / 2, (height - wheight) / 2);
         bimg.copy_from(&_bimg, (width - bwidth) / 2, (height - bheight) / 2);
@@ -95,7 +119,7 @@ impl MirageTank {
             wimg,
             bimg,
             width,
-            height
+            height,
         })
     }
 
@@ -104,7 +128,13 @@ impl MirageTank {
         for w in 0..self.width {
             for h in 0..self.height {
                 if (w + h) % 2 == 0 {
-                    self.bimg.put_pixel(w, h, Rgba { data: [255, 255, 255, 255] });
+                    self.bimg.put_pixel(
+                        w,
+                        h,
+                        Rgba {
+                            data: [255, 255, 255, 255],
+                        },
+                    );
                 } else {
                     self.wimg.put_pixel(w, h, Rgba { data: [0, 0, 0, 0] });
                 }
@@ -128,7 +158,7 @@ impl MirageTank {
         wlight: f32,
         blight: f32,
         wcolor: f32,
-        bcolor: f32
+        bcolor: f32,
     ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let mut outpixels = Vec::new();
         for (&p1, &p2) in self.wimg.pixels().zip(self.bimg.pixels()) {
@@ -138,7 +168,6 @@ impl MirageTank {
         ImageBuffer::from_raw(self.width, self.height, outpixels).unwrap()
     }
 }
-
 
 /*#[cfg(test)]
 mod tests {

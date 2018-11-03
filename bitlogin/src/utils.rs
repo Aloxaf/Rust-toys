@@ -1,13 +1,7 @@
-extern crate base64;
-extern crate byteorder;
-extern crate hmac;
-extern crate md5;
-
-use std::str;
-
 use byteorder::{ByteOrder, LittleEndian};
 use hmac::{Hmac, Mac};
 use md5::Md5;
+use std::str;
 
 // FIXME: 这方法太TM挫了
 pub fn get_host_ip() -> Result<String, ()> {
@@ -22,7 +16,6 @@ pub fn get_host_ip() -> Result<String, ()> {
     }
     Err(())
 }
-
 
 /// 使用 HMAC 算法计算数据的哈希, 这里采用了 MD5
 ///

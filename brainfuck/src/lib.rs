@@ -1,16 +1,12 @@
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-extern crate podio;
-
 mod parser;
 
-pub use parser::{BrainFKParser, Rule};
-use pest::Parser;
-use pest::iterators::Pair;
+pub use crate::parser::{BrainFKParser, Rule};
+use pest::{iterators::Pair, Parser};
 use podio::ReadPodExt;
-use std::{error, fmt};
-use std::io::{self, Read, Write};
+use std::{
+    error, fmt,
+    io::{self, Read, Write},
+};
 
 #[derive(Debug, Clone)]
 pub struct Interpreter<R, W> {

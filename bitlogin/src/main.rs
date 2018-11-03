@@ -1,13 +1,8 @@
 #![feature(try_trait)]
 
-#[macro_use] extern crate failure;
-#[macro_use] extern crate clap;
-#[macro_use] extern crate maplit;
-extern crate bitlogin;
-
-use bitlogin::User;
-use bitlogin::MyError;
-use clap::App;
+use bitlogin::{MyError, User};
+use clap::{load_yaml, App};
+use maplit::hashmap;
 
 fn run() -> Result<(), MyError> {
     let yaml = load_yaml!("../cli.yml");
@@ -32,7 +27,6 @@ fn run() -> Result<(), MyError> {
         let acid = map.get(wlan_type)?;
         println!("{}", user.logout(acid)?.pretty(2));
     }
-
 
     Ok(())
 }

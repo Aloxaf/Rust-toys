@@ -1,11 +1,7 @@
-#[macro_use] extern crate clap;
-extern crate mirage_tank;
-
-use clap::App;
+use clap::{load_yaml, value_t, App};
 use mirage_tank::MirageTank;
-use std::process;
 use std::path::PathBuf;
-
+use std::process;
 
 fn main() {
     let yaml = load_yaml!("../cli.yml");
@@ -22,7 +18,10 @@ fn main() {
     output.set_extension("png");
 
     if output.exists() && matches.occurrences_of("force") == 0 {
-        eprintln!("can't write to {}: file already exists!", output.to_str().unwrap());
+        eprintln!(
+            "can't write to {}: file already exists!",
+            output.to_str().unwrap()
+        );
         process::exit(1);
     }
 

@@ -18,7 +18,7 @@
 //! }
 //! cout << "sum: " << sum << endl;
 //! ```
-use std::fmt::{Debug, Display, Formatter, self};
+use std::fmt::{self, Debug, Display, Formatter};
 use std::io;
 use std::io::prelude::*;
 use std::ops;
@@ -40,6 +40,8 @@ pub struct cout;
 
 #[allow(non_upper_case_globals)]
 pub const cin: IStream = IStream::Success;
+
+pub use crate::IStream::Eof;
 
 impl Display for endl {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
@@ -80,20 +82,22 @@ where
                         Ok(value) => {
                             *input = value;
                             IStream::Success
-                        },
+                        }
                         Err(_err) => {
-                            if str.trim() == "" { IStream::Eof } else { IStream::TypeNotMatch }
+                            if str.trim() == "" {
+                                IStream::Eof
+                            } else {
+                                IStream::TypeNotMatch
+                            }
                         }
                     }
-                },
-                IStream::Eof => IStream::Eof
+                }
+                IStream::Eof => IStream::Eof,
             };
         }
         ret
     }
 }
-
-pub use IStream::Eof;
 
 //#[cfg(test)]
 //mod tests {
