@@ -1,7 +1,4 @@
-extern crate env_logger;
-#[macro_use]
-extern crate log;
-
+use log::{error, info};
 use std::io::prelude::*;
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
@@ -18,7 +15,7 @@ fn main() {
     let (mut key_log_file, mut win_log_file) = get_log_file(&get_log_name());
 
     // 第一次运行时先写入 __SHUTDOWN, 截断前面的记录和本次记录
-    writeln!(&mut win_log_file, "{} __SHUTDOWN", get_timestamp());
+    writeln!(&mut win_log_file, "{} __SHUTDOWN", get_timestamp()).unwrap();
 
     loop {
         // 是否更新日志文件名
@@ -34,7 +31,7 @@ fn main() {
         if screen_locked() && prev_wm_name != "__LOCKEDSCREEN" {
             prev_wm_name = "__LOCKEDSCREEN";
             info!("{} {}", get_timestamp(), prev_wm_name);
-            writeln!(&mut win_log_file, "{} {}", get_timestamp(), prev_wm_name);
+            writeln!(&mut win_log_file, "{} {}", get_timestamp(), prev_wm_name).unwrap();
         } else if let Ok(window) = GetActiveWindow() {
             if window.wm_name != prev_wm_name {
                 let log_str = format!(
@@ -44,7 +41,7 @@ fn main() {
                     window.wm_class
                 );
                 info!("{}", log_str);
-                writeln!(&mut win_log_file, "{}", log_str);
+                writeln!(&mut win_log_file, "{}", log_str).unwrap();
 
                 prev_wm_name = window.wm_name;
             }
@@ -58,7 +55,7 @@ fn main() {
             if *cnt != 0 {
                 prev_key_time = SystemTime::now();
                 info!("{} {}", get_timestamp(), *cnt);
-                writeln!(&mut key_log_file, "{} {}", get_timestamp(), *cnt);
+                writeln!(&mut key_log_file, "{} {}", get_timestamp(), *cnt).unwrap();
                 *cnt = 0;
             }
         }

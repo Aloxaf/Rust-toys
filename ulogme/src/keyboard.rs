@@ -1,6 +1,6 @@
+use log::debug;
 use regex::RegexBuilder;
-use std::io::prelude::*;
-use std::io::{BufRead, Cursor};
+use std::io::{prelude::*, BufRead, Cursor};
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
