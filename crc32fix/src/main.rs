@@ -1,12 +1,7 @@
-#[macro_use] extern crate clap;
-extern crate crc32fix;
-extern crate png;
-
+use clap::{load_yaml, App};
+use crc32fix::*;
 use std::fs;
 use std::process;
-use clap::App;
-use crc32fix::*;
-
 
 fn main() {
     let yaml = load_yaml!("../cli.yml");
@@ -20,23 +15,12 @@ fn main() {
         process::exit(1);
     });
 
-    let mut crcdata = CrcData {
-        type_str: [0, 0, 0, 0],
-        width: 0,
-        height: 0,
-        bits: 0,
-        color_type: 0,
-        compr_method: 0,
-        filter_method: 0,
-        interlace_method: 0,
-        crc_val: 0,
-    };
+    let mut crcdata = CrcData::from_data(&data).unwrap_or_else(|err| {
+        eprintln!("Failed to parse the file: {}", err);
+        process::exit(1);
+    });
 
-    // println!("input: {}\noutput: {}", inputfile, outputfile);
-
-    get_crcdata(&data, &mut crcdata);
-
-    match crack_crc(&mut crcdata) {
+    match crcdata.try_fix() {
         Ok(_) => println!("Found! width: {} height: {}", crcdata.width, crcdata.height),
         Err(_) => eprintln!("Not found!"),
     }
@@ -47,6 +31,4 @@ fn main() {
         eprintln!("Problem saving output file: {}", err);
         process::exit(1);
     });
-
-    // println!("{} {}",  crcdata.width, crcdata.height);
 }
