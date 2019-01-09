@@ -4,12 +4,10 @@ members = [
     "brainfuck",
     "brainfuck_macro",
     "brainfuck_procmacro",
-    "calculator",
-    "crc32fix",
     "iostream",
     "img2ascii",
+    "huang_li",
     "mirage_tank",
-    "md5",
     "ulogme",
     "webapi",
 ]

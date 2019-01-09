@@ -10,7 +10,7 @@
 
 + [img2ascii](./img2ascii) 图片(jpg/png等)转字符画, 学习图像处理
 
-+ [crc32fix](./crc32fix) 根据损坏图片的 crc32 校验值爆破宽高来修复之, 学习图像处理
++ [crc32fix](https://github.com/Aloxaf/crc32fix) 根据损坏图片的 crc32 校验值爆破宽高来修复之, 学习图像处理
 
 + [mirage_tank](./mirage_tank) 幻影坦克快速发车工具, 学习图像处理
 
@@ -25,3 +25,5 @@
 + [brainfuck_macro](./brainfuck_macro) 用宏实现的 brainfuck 解释器, 学习宏
  
 + [brainfuck_procmacro](./brainfuck_procmacro) 用过程宏实现的编译期 brainfuck 解释器, 学习过程宏
+
++ [huang_li](./huang_li) 程序员老黄历, 仿了一个很老的玩意儿

@@ -1,0 +1,18 @@
+[package]
+name = "huang_li"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+description = "程序员老黄历"
+documentation = "https://github.com/Aloxaf/huang_li"
+repository = "https://github.com/Aloxaf/huang_li"
+readme = "README.md"
+categories = ["command-line-utilities"]
+license = "MIT"
+edition = "2018"
+
+[dependencies]
+chrono = "0.4"
+colored = "1.7"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.4"
+term-table = "1.1.0"
