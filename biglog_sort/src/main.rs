@@ -39,9 +39,8 @@ fn main() {
 
     let keyword_map = make_keyword_map(path);
     let (line_cnt, line_map) = make_line_map(path, &keyword_map);
+    std::mem::drop(keyword_map); // 立即销毁, 节省内存(大概
     let line_order = make_line_order(line_cnt, &line_map);
-
-    std::mem::drop(keyword_map);
     std::mem::drop(line_map);
 
     // 进行外排序
@@ -51,9 +50,9 @@ fn main() {
     let sorted_iter = sorter
         .sort_by(
             file.lines()
-                .enumerate()
-                .map(|(idx, s)| Line(idx as u32, s.unwrap())),
-            |a, b| line_order[a.0 as usize].cmp(&line_order[b.0 as usize]),
+                .zip(line_order.iter())
+                .map(|(s, idx)| Line(*idx, s.unwrap())),
+            |a, b| a.0.cmp(&b.0),
         )
         .unwrap();
 
