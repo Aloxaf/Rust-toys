@@ -56,7 +56,7 @@ pub fn make_keyword_map(path: &str) -> HashMap<usize, u32> {
 pub fn make_line_map(
     path: &str,
     keyword_map: &HashMap<usize, u32>,
-) -> (usize, HashMap<Vec<u32>, Vec<u32>>) {
+) -> (usize, HashMap<u32, Vec<u32>>) {
     let file = BufReader::new(File::open(path).expect("无法打开文件"));
     let mut line_cnt = 0;
     let mut ret = HashMap::with_capacity(1000);
@@ -65,11 +65,11 @@ pub fn make_line_map(
         let line = line.unwrap();
         let keywords = get_keywords(&line);
 
-        let mut occurs_cnt = keywords
+        let occurs_cnt = keywords
             .iter()
             .map(|&s| *keyword_map.get(&hash(s)).unwrap())
-            .collect::<Vec<_>>();
-        occurs_cnt.sort_unstable_by(|a, b| b.cmp(a));
+            .max()
+            .unwrap_or(0);
 
         ret.entry(occurs_cnt).or_insert(vec![]).push(idx as u32);
         line_cnt = idx;
@@ -78,7 +78,7 @@ pub fn make_line_map(
     (line_cnt, ret)
 }
 
-pub fn make_line_order(line_cnt: usize, line_map: &HashMap<Vec<u32>, Vec<u32>>) -> Vec<u32> {
+pub fn make_line_order(line_cnt: usize, line_map: &HashMap<u32, Vec<u32>>) -> Vec<u32> {
     // 排序
     let mut keys = line_map.keys().collect::<Vec<_>>();
     keys.par_sort_unstable_by(|a, b| b.cmp(a));
