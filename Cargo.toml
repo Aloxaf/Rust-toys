@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "biglog_sort",
     "bitlogin",
     "brainfuck",
     "brainfuck_macro",
