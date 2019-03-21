@@ -1,4 +1,4 @@
-use fxhash::hash;
+use fxhash::hash32;
 use hashbrown::HashMap;
 use rayon::prelude::*;
 use std::fs::File;
@@ -16,36 +16,38 @@ pub fn get_keywords(text: &str) -> Vec<&str> {
             3
         }
     }
+    if text.len() == 0 {
+        return vec![];
+    }
 
     let bytes = text.bytes().map(type_of).collect::<Vec<_>>();
     let mut ret = Vec::with_capacity(10);
     let mut pos = 0;
 
-    if bytes.len() > 1 {
-        for i in 0..bytes.len() - 1 {
-            if bytes[i] != 3 && bytes[i] != bytes[i + 1] {
-                ret.push(&text[pos..=i]);
-                pos = i + 1;
-            } else if bytes[i] == 3 {
-                pos = i + 1;
-            }
-        }
-        if bytes[pos] != 3 && bytes[pos] == bytes[bytes.len() - 1] {
-            ret.push(&text[pos..]);
+    for i in 0..bytes.len() - 1 {
+        if bytes[i] != 3 && bytes[i] != bytes[i + 1] {
+            ret.push(&text[pos..=i]);
+            pos = i + 1;
+        } else if bytes[i] == 3 {
+            pos = i + 1;
         }
     }
+    if bytes[pos] != 3 && bytes[pos] == bytes[bytes.len() - 1] {
+        ret.push(&text[pos..]);
+    }
+
     ret
 }
 
 /// 读取文件, 确定每个"字符串"出现的次数
-pub fn make_keyword_map(path: &str) -> HashMap<usize, u32> {
+pub fn make_keyword_map(path: &str) -> HashMap<u32, u32> {
     let file = BufReader::new(File::open(path).expect("无法打开文件"));
-    let mut ret = HashMap::with_capacity(1000);
+    let mut ret = HashMap::with_capacity(10000);
 
     for line in file.lines() {
         let line = line.unwrap();
         for keyword in get_keywords(&line) {
-            *ret.entry(hash(keyword)).or_insert(0) += 1;
+            *ret.entry(hash32(keyword)).or_insert(0) += 1;
         }
     }
 
@@ -55,11 +57,11 @@ pub fn make_keyword_map(path: &str) -> HashMap<usize, u32> {
 /// 根据每行的字符串出现次数生成一个"特征值"
 pub fn make_line_map(
     path: &str,
-    keyword_map: &HashMap<usize, u32>,
+    keyword_map: &HashMap<u32, u32>,
 ) -> (usize, HashMap<u32, Vec<u32>>) {
     let file = BufReader::new(File::open(path).expect("无法打开文件"));
     let mut line_cnt = 0;
-    let mut ret = HashMap::with_capacity(1000);
+    let mut ret = HashMap::with_capacity(10000);
 
     for (idx, line) in file.lines().enumerate() {
         let line = line.unwrap();
@@ -67,7 +69,7 @@ pub fn make_line_map(
 
         let occurs_cnt = keywords
             .iter()
-            .map(|&s| *keyword_map.get(&hash(s)).unwrap())
+            .map(|&s| *keyword_map.get(&hash32(s)).unwrap())
             .max()
             .unwrap_or(0);
 

@@ -35,7 +35,12 @@ impl Sortable<Line> for Line {
 }
 
 fn main() {
-    let path = "sample_100M.txt";
+    let args = std::env::args().collect::<Vec<_>>();
+    if args.len() == 1 {
+        println!("Usage: {} FILE", args[0]);
+        return;
+    }
+    let path = &args[1];
 
     let keyword_map = make_keyword_map(path);
     let (line_cnt, line_map) = make_line_map(path, &keyword_map);
