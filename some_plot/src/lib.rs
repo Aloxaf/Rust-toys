@@ -46,7 +46,7 @@ impl Plot {
 
         Self {
             document: Document::new()
-                .set("viewBox", (0, 0, x * 3.0, y * 2.0))
+                .set("viewBox", (0, 0, x * 2.0, y * 2.0))
                 .add(circle),
             x,
             y,
@@ -76,16 +76,20 @@ impl Plot {
 
             for size in [size1, size2].iter() {
                 let flag = Line::new()
-                    .set("x1", self.x + x * size - 1.0)
+                    .set("x1", self.x + x * size - 2.0)
                     .set("y1", self.y - y * size)
-                    .set("x2", self.x + x * size + 1.0)
+                    .set("x2", self.x + x * size + 2.0)
                     .set("y2", self.y - y * size)
                     .set("stroke", "black")
                     .set("stroke-width", 0.7)
-                    .set("transform-origin", (self.x + x * size, self.y - y * size))
                     .set(
                         "transform",
-                        format!("rotate({})", 360 / self.axis_cnt as usize * idx),
+                        format!(
+                            "rotate({}, {}, {})",
+                            360 / self.axis_cnt as usize * idx,
+                            self.x + x * size,
+                            self.y - y * size
+                        ),
                     );
                 self.add(flag);
             }
@@ -111,9 +115,9 @@ impl Plot {
 
             // 添加标签文字
             let text = Text::new()
-                .set("x", self.x + x * 1.05 - 5.0)
-                .set("y", self.y - y * 1.05)
-                .set("font-size", 6)
+                .set("x", self.x + x * 1.02 - 5.0)
+                .set("y", self.y - y * 1.02)
+                .set("font-size", 9)
                 .add(node::Text::new(label.to_owned()));
             self.add(text);
         }
@@ -135,10 +139,14 @@ impl Plot {
 
         let path = Path::new()
             .set("d", data)
-            .set("transform-origin", (self.x, self.y))
             .set(
                 "transform",
-                format!("rotate({})", 360 / self.axis_cnt as i32 * nth),
+                format!(
+                    "rotate({}, {}, {})",
+                    360 / self.axis_cnt as i32 * nth,
+                    self.x,
+                    self.y
+                ),
             )
             .set("fill", color);
 
