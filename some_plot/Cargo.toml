@@ -1,0 +1,10 @@
+[package]
+name = "some_plot"
+version = "0.1.0"
+authors = ["Aloxaf <bailong104@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+svg = "0.5"
+
+[lib]

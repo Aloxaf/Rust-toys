@@ -9,6 +9,7 @@ members = [
     "img2ascii",
     "huang_li",
     "mirage_tank",
+    "some_plot",
     "ulogme",
     "webapi",
 ]
